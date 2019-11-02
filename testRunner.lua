@@ -24,7 +24,7 @@ function LevelDataPoint.new(x, y, worldObjects, isPlayerAccesible)
 	info.x = x
 	info.y = y
 	info.worldObjects = worldObjects
-	if isPlayerAccesible == nil then -- bit smelly, but setting default value like this
+	if isPlayerAccesible == nil then -- bit smelly, but setting default value like this, would prefer to use a tunary operator
 		isPlayerAccesible = true
 	end
 	info.isPlayerAccesible = isPlayerAccesible
@@ -116,6 +116,7 @@ function Player.pickup(player, name)
 		Check if the item is available to pickup,
 		if so, add to player backpack and remove from world.
 		Prob a better way to do this in lua than this linear search,
+		e.g. other languages have functional API's for efficient lookups like lync c#
 		and it's a little smelly, but it will have to do!
 	]]
 	local exists = false
