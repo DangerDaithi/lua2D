@@ -1,35 +1,33 @@
 --[[
-	LevelDataPoint class
+	the world object base class *********************
 ]]
+WorldObject = {}
+local worldObject_metatab = {}
 
---[[
-LevelDataPoint = {x = 0, y = 0, worldobjects = {}, isPlayerAccesible = false}
-
-function LevelDataPoint:new(o, x, y, isPlayerAccesible)
-	o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	self.x = x
-	self.y = y
-	self.worldobjects = worldobjects
-	self.isPlayerAccesible = isPlayerAccesible
-	return o
+function WorldObject.new(name)
+	local info = {}
+	info.name = name
+	setmetatable(info, worldObject_metatab)
+	return info
 end
 
-]]
+worldObject_metatab.__index = WorldObject
 
 
 --[[
-	the level datapoint class
+	the level datapoint class *********************
 ]]
-
 LevelDataPoint = {}
 local levelDataPoint_metatab = {}
 
-function LevelDataPoint.new(x, y, isPlayerAccesible)
+function LevelDataPoint.new(x, y, isPlayerAccesible, worldObjects)
 	local info = {}
 	info.x = x
 	info.y = y
+	if isPlayerAccesible == nil then -- bit smelly setting default value like this
+		isPlayerAccesible = true
+	end
+	info.worldObjects = worldObjects
 	info.isPlayerAccesible = isPlayerAccesible
 	setmetatable(info, levelDataPoint_metatab)
 	return info
@@ -43,10 +41,14 @@ function LevelDataPoint.getY(dataPoint)
 	return dataPoint.y
 end
 
+function LevelDataPoint.playerAccesible(dataPoint)
+	return dataPoint.isPlayerAccesible
+end
+
 levelDataPoint_metatab.__index = LevelDataPoint
 
 --[[
-	the level class
+	the level class *********************
 ]]
 Level = {}
 local level_metatab = {}
@@ -66,7 +68,7 @@ level_metatab.__index = Level
 
 
 --[[
-	the player class
+	the player class *********************
 ]]
 Player = {}
 local player_metatab = {}
@@ -96,28 +98,75 @@ player_metatab.__index = Player
 
 
 --[[
-	some free functions
+	some free functions *********************
 ]]
 
-function tableLength(T)
-	local count = 0
-	  for _ in pairs(T) do count = count + 1 end
-	  return count
+function getLevelData()
+	local levelData = {}
+	table.insert(levelData, LevelDataPoint.new(150, 150))
+	table.insert(levelData, LevelDataPoint.new(150, 175))
+	table.insert(levelData, LevelDataPoint.new(150, 200))
+	table.insert(levelData, LevelDataPoint.new(150, 225))
+	table.insert(levelData, LevelDataPoint.new(150, 250))
+	table.insert(levelData, LevelDataPoint.new(150, 300))
+	table.insert(levelData, LevelDataPoint.new(150, 350))
+	table.insert(levelData, LevelDataPoint.new(175, 150))
+	table.insert(levelData, LevelDataPoint.new(175, 175))
+	table.insert(levelData, LevelDataPoint.new(175, 200))
+	table.insert(levelData, LevelDataPoint.new(175, 225))
+	table.insert(levelData, LevelDataPoint.new(175, 250))
+	table.insert(levelData, LevelDataPoint.new(175, 300))
+	table.insert(levelData, LevelDataPoint.new(175, 350))
+	table.insert(levelData, LevelDataPoint.new(200, 150))
+	table.insert(levelData, LevelDataPoint.new(200, 175))
+	table.insert(levelData, LevelDataPoint.new(200, 200))
+	table.insert(levelData, LevelDataPoint.new(200, 225))
+	table.insert(levelData, LevelDataPoint.new(200, 250))
+	table.insert(levelData, LevelDataPoint.new(200, 300))
+	table.insert(levelData, LevelDataPoint.new(200, 350))
+	table.insert(levelData, LevelDataPoint.new(250, 150))
+	table.insert(levelData, LevelDataPoint.new(250, 175))
+	table.insert(levelData, LevelDataPoint.new(250, 200))
+	table.insert(levelData, LevelDataPoint.new(250, 225))
+	table.insert(levelData, LevelDataPoint.new(250, 250))
+	table.insert(levelData, LevelDataPoint.new(250, 300))
+	table.insert(levelData, LevelDataPoint.new(250, 350))
+	table.insert(levelData, LevelDataPoint.new(300, 150))
+	table.insert(levelData, LevelDataPoint.new(300, 175))
+	table.insert(levelData, LevelDataPoint.new(300, 200, false)) -- player cannot go to (300, 200)
+	table.insert(levelData, LevelDataPoint.new(300, 225))
+	table.insert(levelData, LevelDataPoint.new(300, 250))
+	table.insert(levelData, LevelDataPoint.new(300, 300))
+	table.insert(levelData, LevelDataPoint.new(300, 350))
+	table.insert(levelData, LevelDataPoint.new(350, 150))
+	table.insert(levelData, LevelDataPoint.new(350, 175))
+	table.insert(levelData, LevelDataPoint.new(350, 200))
+	table.insert(levelData, LevelDataPoint.new(350, 225))
+	table.insert(levelData, LevelDataPoint.new(350, 250))
+	table.insert(levelData, LevelDataPoint.new(350, 300))
+	table.insert(levelData, LevelDataPoint.new(350, 350))
+	return levelData
 end
 
 
 --[[
-	test runner
+	test runner *********************
 ]]
 
-levelData = {}
-table.insert(levelData, LevelDataPoint.new(50, 75))
-
 level = Level.new()
-level.load(levelData)
+level.load(getLevelData()) -- lazily load level data
+-- print(table.getn(getLevelData()))
+--[[
+for _,datapoint in ipairs(getLevelData()) do
+        print(datapoint:playerAccesible())
+		print(datapoint:getX().. ", ".. datapoint:getY())
+end
 
-player1 = Player.new(2)
-player1:regsiterLevel("a level")
+]]
+
+player1 = Player.new(1)
+player1:regsiterLevel(level)
+
 
 
 
