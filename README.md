@@ -20,10 +20,17 @@ Drop items anywhere in the game world
 Example:
 
 level = Level.new()
+
 level.load(someleveldata) -- lazily load level data
+
 player1 = Player.new(1)
+
 player1:regsiterLevel(level)
+
 player1:teleport(200, 200)
+
 player1:pickup("potion")
+
 player1:teleport(300, 200)
+
 player1:drop("potion")
