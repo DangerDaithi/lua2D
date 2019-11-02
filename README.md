@@ -8,14 +8,14 @@ To run in Windows powershell: PS <DRIVE>:\<FILEPATH> lua .\testRunner.lua
 Developer guide
 Framework has been designed in a modular fashion to allow script writters to:
 
-Lazially load any level data to a level
-Easily configure and add game objects and items to data points in 2d space
-Create new players
-Register levels with players
-Register the same level data with more than one player for simulating a multiplayer scenario
-Move players around in 2D space
-Pick up items and assign to players inventory
-Drop items anywhere in the game world
+Lazially load any level data to a level. 
+Easily configure and add game objects and items to data points in 2d space. 
+Create new players. 
+Register levels with players. 
+Register the same level data with more than one player for simulating a multiplayer scenario. 
+Move players around in 2D space. 
+Pick up items and assign to players inventory. 
+Drop items anywhere in the game world. 
 
 Example:
 
