@@ -23,8 +23,7 @@ local levelDataPoint_metatab = {}
 function LevelDataPoint.new(x, y, worldObjects, isPlayerAccesible)
 	local info = {}
 	info.x = x
-	info.y = y
-	info.worldObjects = worldObjects
+	info.y = y	info.worldObjects = worldObjects
 	if isPlayerAccesible == nil then -- bit smelly, but setting default value like this
 		isPlayerAccesible = true
 	end
@@ -77,64 +76,95 @@ level_metatab.__index = Level
 Player = {}
 local player_metatab = {}
 
-function Player.new(id, level)
+function Player.new(id, maxBackpackCapacity, level)
 	local info = {}
 	info.id = id
+	info.maxBackpackCapacity = maxBackpackCapacity
 	info.level = level
-	info.maxBackpackCapacity = 5
 	info.backpack = {} -- player inventory
 	info.currentPosition = LevelDataPoint.new(0, 0, {})
 	setmetatable(info, player_metatab)
 	return info
 end
 
+function Player.getMaxBackpackCapacity(player)
+	return player.maxBackpackCapacity
+end
+
 function Player.getPlayerid(player)
 	return player.id
 end
 
-function Player:regsiterLevel(level)
-	player_metatab.level = level
+
+
+function Player.regsiterLevel(player, level)
+	player.level = level
 
 end
 
-function Player:getLevel()
-	return player_metatab.level
+function Player.getLevel(player)
+	return player.level
 end
 
-function Player:teleport(x, y)
-	if player_metatab.level == nil then
-		print("Must register a level to the player before teleporting.")
+function Player.pickup(player)
+	print(player.maxBackpackCapacity)
+	--if table.getn(player_metatab.backpack) >= player_metatab.maxBackpackCapacity then
+
+	--end
+
+	--player_metatab:test()
+end
+
+function Player.teleport(player, x, y)
+	if player.level == nil then
+		print("Must register a level to the player before teleporting")
 		return
 	end
-
-	if player_metatab.level.getLevelData()[x..y] == nil then
-		print("Player has attempted to stray out of the permitted world bounds. This is bold")
+	--print(player:getPlayerid())
+	if player.level.getLevelData()[x..y] == nil then
+		print("Player has attempted to stray out of the permitted world bounds at ("..x..","..y..")")
 		return
 	end
 
 	-- coords exist
 
-	if player_metatab.level.getLevelData()[x..y]:playerAccesible() then
+	if player.level.getLevelData()[x..y]:playerAccesible() then
 
-		if player_metatab.currentPosition == nil then -- check for null reference exception
+		if player.currentPosition == nil then -- check for null reference exception
 			print("curent position was nil")
-			player_metatab.currentPosition = LevelDataPoint.new(0, 0, {})
+			player.currentPosition = LevelDataPoint.new(0, 0, {})
 		end
-		print("Player has moved from  ("..player_metatab.currentPosition:getX()..","..player_metatab.currentPosition:getY() ..") to ("..x..","..y..")")
-		player_metatab.currentPosition = player_metatab.level.getLevelData()[x..y] -- update the players current position
+		print("Player has moved from ("..player.currentPosition:getX()..","..player.currentPosition:getY() ..") to ("..x..","..y..")")
+		player.currentPosition = player.level.getLevelData()[x..y] -- update the players current position
+
+		-- log to std out if there are any world objects the player can use
+		if table.getn(player.currentPosition.worldObjects) > 0 then
+			print("There are "..table.getn(player.currentPosition.worldObjects).." availble items at location ("..player.currentPosition:getX()..","..player.currentPosition:getY() ..")")
+		end
+
+
 	else
-		print("Player has attempted to enter a restricted area at coords "..x..","..y)
+		print("Player has attempted to enter a restricted area at coords ("..x..","..y..")")
 	end
 
 
 end
 
+
+
 player_metatab.__index = Player
 
 
 --[[
-	some free functions *********************
+	some free functions and data *********************
 ]]
+
+local availableWorldObjects =
+{
+  ["knife"] = WorldObject.new("knife"),
+  ["potion"] = WorldObject.new("potion"),
+  ["cantrip"] = WorldObject.new("cantrip")
+}
 
 function getLevelData()
 	local levelData = {}
@@ -158,7 +188,15 @@ function getLevelData()
 
 	levelData["200150"] = LevelDataPoint.new(200, 150, {})
 	levelData["200175"] = LevelDataPoint.new(200, 175, {})
-	levelData["200200"] = LevelDataPoint.new(200, 200, {})
+	levelData["200200"] = LevelDataPoint.new(200, 200, {-- add 8 knives to (200, 200)
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"],
+		availableWorldObjects["knife"]})
 	levelData["200225"] = LevelDataPoint.new(200, 225, {})
 	levelData["200250"] = LevelDataPoint.new(200, 250, {})
 	levelData["200300"] = LevelDataPoint.new(200, 300, {})
@@ -197,26 +235,23 @@ end
 
 level = Level.new()
 level.load(getLevelData()) -- lazily load level data
-player1 = Player.new(1)
+player1 = Player.new(1, 5)
 player1:regsiterLevel(level)
-player1:teleport(200, 200) -- accessible
+player1:teleport(200, 200) -- accessible, with 8 goodies
 player1:teleport(200, 150) -- accessible
 player1:teleport(300, 200) -- not accessible
+player1:teleport(500, 200) -- out of world bounds
+player1:teleport(200, 200) -- accessible, with 8 goodies
+player1:pickup()
 
-
---test = getLevelData()["400250"]:playerAccesible()
-
-
-
-
-
---[[
-for _,datapoint in ipairs(getLevelData()) do
-        print(datapoint:playerAccesible())
-		print(datapoint:getX().. ", ".. datapoint:getY())
-end
-
-]]
+player2 = Player.new(1, 5)
+player2:regsiterLevel(level)
+player2:teleport(200, 200) -- accessible, with 8 goodies
+player2:teleport(200, 150) -- accessible
+player2:teleport(300, 200) -- not accessible
+player2:teleport(500, 200) -- out of world bounds
+player2:teleport(200, 200) -- accessible, with 8 goodies
+player2:pickup()
 
 
 
